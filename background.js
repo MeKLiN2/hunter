@@ -1,14 +1,27 @@
-// Example background script
-console.log('Background script loaded.');
+chrome.runtime.onInstalled.addListener(() => {
+  // Set the initial value for whether to block elements on Tampermonkey settings page
+  chrome.storage.local.set({ blockTampermonkeySettings: true });
+});
 
-// Add any background functionality here
-// For example, you could listen for events or messages from content scripts
-
-// Example: Listen for messages from content scripts
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log('Message received from content script:', message);
-    
-    // Perform any necessary actions in response to the message
-    // For example, you could send a message back to the content script
-    sendResponse({ response: 'Message received' });
+// Listen for changes in Tampermonkey settings
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (changes.blockTampermonkeySettings) {
+    const newValue = changes.blockTampermonkeySettings.newValue;
+    if (typeof newValue === "boolean") {
+      // Send a message to content scripts to update their behavior
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach((tab) => {
+          chrome.tabs.sendMessage(tab.id, {
+            action: "updateBlockTampermonkeySettings",
+            value: newValue,
+          }, (response) => {
+            // Handle response if needed
+            if (chrome.runtime.lastError) {
+              console.error(chrome.runtime.lastError.message);
+            }
+          });
+        });
+      });
+    }
+  }
 });
