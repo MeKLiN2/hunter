@@ -1,0 +1,2 @@
+# hunter
+stumblechat blacklist extension
