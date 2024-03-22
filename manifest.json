@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "DoAi Extension",
+  "version": "1.0",
+  "description": "Extension to invoke the DoAi function on web pages.",
+  "permissions": ["activeTab"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["doai.js"]
+    }
+  ]
+}
